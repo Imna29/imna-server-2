@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String           @id
+  username        String           @unique @db.VarChar(25)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now()) @updatedAt
+  playlists       WatchPlaylist[]
+  watchedEpisodes WatchedEpisode[]
+
+  @@index([id])
+  @@index([username])
+}
+
+model WatchPlaylist {
+  id        String            @id @default(uuid(7)) @db.Uuid
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  name      String
+  type      WatchPlaylistType
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  items WatchPlaylistItem[]
+
+  @@index([userId])
+}
+
+model WatchPlaylistItem {
+  id          String                @id @default(uuid(7)) @db.Uuid
+  playlist    WatchPlaylist         @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  playlistId  String                @db.Uuid
+  contentType WatchPlaylistItemType
+  contentId   Int
+  createdAt   DateTime              @default(now())
+  watchedAt   DateTime              @updatedAt()
+
+  @@unique([playlistId, contentType, contentId])
+  @@index([playlistId])
+}
+
+model WatchedEpisode {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  seasonNum  Int
+  episodeNum Int
+  tvShowId   Int
+  watchedAt  DateTime @updatedAt()
+
+  @@unique([userId, tvShowId, seasonNum, episodeNum])
+  @@index([userId, tvShowId])
+}
+
+enum WatchPlaylistItemType {
+  MOVIE
+  TV_SHOW
+}
+
+enum WatchPlaylistType {
+  HISTORY
+  WATCH_LATER
+  FAVORITES
+  CUSTOM
+}

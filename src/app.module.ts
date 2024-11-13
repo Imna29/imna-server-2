@@ -7,6 +7,7 @@ import { PrismaModule } from './prisma/prisma.module.js';
 import { FirebaseService } from './firebase.service.js';
 import { AppController } from './app.controller.js';
 import { WatchModule } from './watch/watch.module.js';
+import { GptModule } from './gpt/gpt.module.js';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { WatchModule } from './watch/watch.module.js';
       isGlobal: true,
     }),
     PrismaModule,
-    WatchModule],
+    WatchModule,
+    GptModule],
   controllers: [AppController],
   providers: [AppService, FirebaseService],
 })

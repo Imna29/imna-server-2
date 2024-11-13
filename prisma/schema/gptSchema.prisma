@@ -1,0 +1,24 @@
+model GptConversation {
+    id        String       @id @default(uuid(7)) @db.Uuid
+    user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId    String
+    messages  GptMessage[]
+    createdAt DateTime     @default(now())
+    updatedAt DateTime     @updatedAt
+}
+
+model GptMessage {
+    id             String          @id @default(uuid(7)) @db.Uuid
+    conversation   GptConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+    conversationId String          @db.Uuid
+    role           GptMessageRole
+    content        String
+    createdAt      DateTime        @default(now())
+    updatedAt      DateTime        @updatedAt
+}
+
+enum GptMessageRole {
+    USER
+    ASSISTANT
+    SYSTEM
+}

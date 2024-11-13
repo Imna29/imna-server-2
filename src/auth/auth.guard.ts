@@ -3,7 +3,8 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
-  Injectable, SetMetadata,
+  Injectable,
+  SetMetadata,
 } from '@nestjs/common';
 import admin from 'firebase-admin';
 import { FastifyRequest } from 'fastify';
@@ -14,12 +15,9 @@ export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private reflector: Reflector) {
-  }
+  constructor(private reflector: Reflector) {}
 
-  async canActivate(
-    context: ExecutionContext,
-  ): Promise<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -29,10 +27,10 @@ export class AuthGuard implements CanActivate {
     }
 
     const request: FastifyRequest = context.switchToHttp().getRequest();
-    const authorization = request.headers.authorization?.split(" ")[1];
+    const authorization = request.headers.authorization;
     const authCookie = request.cookies.authorization;
 
-    if ((!authorization) && !authCookie) {
+    if (!authorization && !authCookie) {
       throw new BadRequestException('No authorization header/cookie present.');
     }
 
